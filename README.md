@@ -1,5 +1,5 @@
 # repo-stat-stash
-This tool to store custom repository statistics and issues with commit level resolution in a redis store. This solution was inspired by automatic code quality checking services like codacy or codecov, which examine code for coding style violations and evaluate commits on the basis of weather they reduce or increase the quality of the codebase.
+This tool to stores custom repository statistics and issues with commit level resolution in a redis store. This solution was inspired by automatic code quality checking services like codacy or codecov, which examine code for coding style violations and evaluate commits on the basis of weather they reduce or increase the quality of the codebase.
 
 It grew out of a desire to implement custom data quality checking for a scientific database stored in GitHub. Custom quality checks on each commit are simple to implement with a CI server like Travis but fail to account for accumulated technical debt. Using this module, these tests can compare the issues in commit to the repository head and ensure that revisions improve the consistency and quality of the data.
 
