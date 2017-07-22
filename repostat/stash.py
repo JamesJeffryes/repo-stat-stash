@@ -53,6 +53,58 @@ class StatStash:
             raise ValueError('No data for master branch found')
         return pickle.loads(hit)
 
+    def get_difference(self, stat_type, stats, branch='master', ignore=('commit', 'branch', 'timestamp')):
+        """
+        Return a stats object with the difference between the provided stats 
+        and the the current set of stats on the branch
+        :param stat_type: a key for the stat group
+        :type stat_type: str
+        :param stats: a stats group
+        :type stats: dict
+        :param branch: the branch to compare with
+        :type branch: str
+        :param ignore: keys in the stats group to ignore
+        :type ignore: tuple
+        :return: stats
+        :rtype: dict
+        """
+        basis_stats = self.get_current_stats(stat_type, branch)
+        diff = {}
+        for key, val in stats.items():
+            if key in ignore:
+                continue
+            if isinstance(val, str):
+                print("WARNING: method does not calculate difference for "
+                      "strings. consider using 'get_new' method")
+                continue
+            if not type(val) is type(basis_stats[key]):
+                raise ValueError("Type inconsistency for stat %s\nLocal: %s\n"
+                                 "Remote: %s" % (key, val, basis_stats[key]))
+            if isinstance(val, float) or isinstance(val, int):
+                diff[key] = val - basis_stats[key]
+            else:
+                diff[key] = len(val) - len(basis_stats[key])
+        return diff
+
+    def get_decreasing(self, stat_type, stats, branch='master',
+                       ignore=('commit', 'branch', 'timestamp')):
+        """
+        Get the keys for stats values which decrease in a given set as compared
+         with the current stats on a branch
+        :param stat_type: a key for the stat group
+        :type stat_type: str
+        :param stats: a stats group
+        :type stats: dict
+        :param branch: the branch to compare with
+        :type branch: str
+        :param ignore: keys in the stats group to ignore
+        :type ignore: tuple
+        :return: keys of stats that decreased
+        :rtype: list
+        """
+        difference = self.get_difference(stat_type, stats, branch, ignore)
+        return [k for k, v in difference.items() if v < 0]
+
     def get_increasing(self, stat_type, stats, branch='master',
                        ignore=('commit', 'branch', 'timestamp')):
         """
@@ -69,17 +121,8 @@ class StatStash:
         :return: keys of stats that increased
         :rtype: list
         """
-        basis_stats = self.get_current_stats(stat_type, branch)
-        inc = []
-        for key, val in stats.items():
-            if key in ignore:
-                continue
-            if val > basis_stats[key]:
-                inc.append(key)
-        return inc
+        difference = self.get_difference(stat_type, stats, branch, ignore)
+        return [k for k, v in difference.items() if v > 0]
 
-    def get_new(self, stat_type, stats, ignore=('commit', 'branch', 'timestamp')):
-        raise NotImplementedError
-
-    def get_difference(self, stat_type, stats, ignore=('commit', 'branch', 'timestamp')):
+    def get_new(self, stat_type, stats, branch='master', ignore=('commit', 'branch', 'timestamp')):
         raise NotImplementedError

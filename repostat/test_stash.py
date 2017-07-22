@@ -3,8 +3,8 @@ from nose.tools import assert_raises
 
 stash = StatStash('redis-16221.c12.us-east-1-4.ec2.cloud.redislabs.com', 16221)
 stash.current_branch = 'test_branch'
-stat_one = {"a":1, "b":2, "c":3}
-stat_two = {"a":3, "b":2, "c":1}
+stat_one = {"a": 1, "b": ('z',), "c": [1, 2, 3], 'd': {}, 'e': {'x', 'y'}}
+stat_two = {"a": 3, "b": ('x',), "c": [1], 'd': {}, 'e': {'x', 'z'}}
 
 
 def teardown_module():
@@ -24,5 +24,16 @@ def test_get_current_stats():
     assert all([result[k] == stat_one[k] for k in stat_one])
 
 
+def test_get_difference():
+    assert stash.get_difference('test', stat_two, stash.current_branch
+                                ) == {'a': 2, 'b': 0, 'c': -2, 'd': 0, 'e': 0}
+
+
+def test_get_decreasing():
+    assert stash.get_decreasing('test', stat_two, stash.current_branch
+                                ) == ['c']
+
+
 def test_get_increasing():
-    assert stash.get_increasing('test', stat_two) == ['a']
+    assert stash.get_increasing('test', stat_two, stash.current_branch
+                                ) == ['a']
