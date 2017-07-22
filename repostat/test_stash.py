@@ -1,7 +1,7 @@
 from repostat.stash import StatStash
 from nose.tools import assert_raises
 
-stash = StatStash('redis-16221.c12.us-east-1-4.ec2.cloud.redislabs.com', 16221)
+stash = StatStash('redis://redistogo:97514a86e6ef0787d7c13696ca95db1d@angelfish.redistogo.com:10495')
 stash.current_branch = 'test_branch'
 stat_one = {"a": 1, "b": ('z',), "c": [1, 2, 3], 'e': {'x', 'y'}}
 stat_two = {"a": 3, "b": ('x',), "c": [1], 'd': "", 'e': {'x', 'z'}}

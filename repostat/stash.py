@@ -6,8 +6,8 @@ import pickle
 
 
 class StatStash:
-    def __init__(self, *redis_params):
-        self.r = redis.Redis(*redis_params)
+    def __init__(self, redis_url):
+        self.r = redis.Redis.from_url(redis_url)
         self.r.ping()
         self.current_branch = subprocess.check_output(
             ['git', 'rev-parse', '--abbrev-ref', 'HEAD']).decode(
