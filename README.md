@@ -1,9 +1,9 @@
 # repo-stat-stash
-This tool to stores custom repository statistics and issues with commit level resolution in a redis store. This solution was inspired by automatic code quality checking services like codacy or codecov, which examine code for coding style violations and evaluate commits on the basis of weather they reduce or increase the quality of the codebase.
+This tool to stores custom repository statistics and issues with commit level resolution in a redis store. This solution was inspired by automatic code quality checking services like codacy or codecov, which examine code for coding style violations and evaluate commits on the basis of if they reduce or increase the quality of the codebase.
 
-It grew out of a desire to implement custom data quality checking for a scientific database stored in GitHub. Custom quality checks on each commit are simple to implement with a CI server like Travis but fail to account for accumulated technical debt. Using this module, these tests can compare the issues in commit to the repository head and ensure that revisions improve the consistency and quality of the data.
+It grew out of a desire to implement custom data quality checking for a scientific database stored in GitHub. In a lot of ways, GitHub is a great way to store scientific data; it's open, clearly versioned and supports collaborative curation and automatic error checking. However, while custom quality checks on each commit are simple to implement with a CI server like Travis, they fail to account for accumulated curation issues (similar to technical debt). Using this module, these tests can compare the issues in commit to the repository head and ensure that revisions improve the consistency and quality of the data.
 
-###Usage
+### Usage
 This tool needs a redis store to persist it's data. You can set up a free redis instance in the cloud to test this tool out from [redislabs](https://redislabs.com/blog/redis-cloud-30mb-ram-30-connections-for-free/). With that endpoint in hand, initialize the StatStash as follows:
 ```
 > from repostat.stash import StatStash
@@ -24,3 +24,12 @@ Check how a new set of stats compares with the stats recorded for the master bra
 > print(stash.get_new('example errors', stat_two))
 {'faulty formulas': 3, 'missing data': {'z'}}
 ```
+You can update your CI tests to only fail if new issues are found quite easily. Make sure you also save results in the test file so the bar gets raised when fixes are pulled into the master branch.
+```
+> issues = run_your_test_library()
+> new_issues = stash.get_new('example errors', issues)
+> stash.report_stats('example errors', issues) # make sure the record is updated regardless
+> if new_issues:
+    print("New issues detected: %s" % new_issues)
+    exit(1) # causes travis build to fail
+``` 

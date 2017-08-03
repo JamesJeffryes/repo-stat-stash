@@ -41,5 +41,4 @@ def test_get_increasing():
 
 def test_get_new():
     result = stash.get_new('test', stat_two, stash.current_branch)
-    print(result)
     assert result == {'a': 3, 'b': {'x'}, 'e': {'z'}}
